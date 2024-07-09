@@ -29,7 +29,9 @@ pub(crate) async fn spawn(
 
 	let fut = next.run(req);
 	let task = server.runtime().spawn(fut);
-	task.await.map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
+	task.await
+		.inspect_err(|e| error!(?e))
+		.map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
 }
 
 #[tracing::instrument(skip_all, name = "handle")]
